@@ -48,8 +48,8 @@ public class MainActivity extends Activity {
     private static final String CURRENT_HTML = "current.html";
     private static final String BACKUP_HTML = "backup.html";
 
-    private static final int BUNDLED_BUILD = 2300780;
-    private static final String BUNDLED_VERSION = "2.30.7.80";
+    private static final int BUNDLED_BUILD = 23007124;
+    private static final String BUNDLED_VERSION = "2.30.7.124";
 
     private static final String RAW_BASE =
             "https://raw.githubusercontent.com/Byanka-Rail/fire-direction-lab/main/";
@@ -79,11 +79,30 @@ public class MainActivity extends Activity {
 
     private void prepareBundledGame() {
         File current = new File(getFilesDir(), CURRENT_HTML);
-        if (current.exists() && current.length() > 1000) return;
+        File backup = new File(getFilesDir(), BACKUP_HTML);
+        boolean hasCurrent = current.exists() && current.length() > 1000;
+        int currentBuild = prefs.getInt("current_build", 0);
 
-        try (InputStream in = getAssets().open("game.html");
-             OutputStream out = new BufferedOutputStream(new FileOutputStream(current))) {
-            copy(in, out);
+        // Keep a downloaded/current build when it is already this bundled build or newer.
+        if (hasCurrent && currentBuild >= BUNDLED_BUILD) return;
+
+        try {
+            // When an APK update carries a newer bundled game, preserve the previous HTML
+            // as the normal one-step rollback target before promoting the bundled build.
+            if (hasCurrent) {
+                copyFile(current, backup);
+                prefs.edit()
+                        .putInt("backup_build", currentBuild)
+                        .putString("backup_version",
+                                prefs.getString("current_version", "이전 버전"))
+                        .apply();
+            }
+
+            try (InputStream in = getAssets().open("game.html");
+                 OutputStream out = new BufferedOutputStream(new FileOutputStream(current))) {
+                copy(in, out);
+            }
+
             prefs.edit()
                     .putInt("current_build", BUNDLED_BUILD)
                     .putString("current_version", BUNDLED_VERSION)
