@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0b0d10">
 <meta name="theme-color" content="#081019">
-<title>FIRE DIRECTION LAB v2.30.7.124 · 제파별 구역 배분</title>
+<title>FIRE DIRECTION LAB v2.30.7.125 · 공중파열·개함</title>
 <!-- v2.30.7.116: 수정제원 실적용 회귀 봉합. 수동모드의 사거리 수정이 dR/10 밀 고정근사와 고정 TOF로 처리되던 오래된 경로를 제거하고, 사용자가 확정한 원제원의 오차는 보존한 채 정확한 무수정해→수정점해의 QE/AZ/TOF 차이만 적용한다. AUTO-BAL 빠른 재조정도 correctionAimGeometry를 사용하여 corrR/corrD로 옮긴 새 조준점의 실제 포고/지면고도를 사용한다. 탄도 적분·산포·피해·대포병 수치 불변. -->
 <!-- v2.30.7.78: 금하선 본편 v19.20.58 사격코어 변동 대조. v19.20.41→58 사이 integrate/solve/사표/풍·편류/피해계수는 불변. LAB에 구조적으로 필요한 공통 회귀만 이식: 자동제원에서 고사계를 선택했는데 현재 장약에 고사계 해가 없으면 저사계 폴백/가지경계 재사용을 허용하지 않고, 같은 고사계 해가 실제로 서는 낮은 장약부터 재선정한다. 수동제원은 사용자의 장약 선택을 자동으로 바꾸지 않는다. LAB 이동표적은 기존부터 각 발 실제 TOF×속도로 선도를 새로 계산하고 탄착시각 표적위치로 판정하므로 본편의 contactPredictedPos/watchTick 상태머신은 중복 이식하지 않는다. 본편의 관측망·병참·StateGuard·제압 이동감속은 사격물리 공통코어가 아니므로 LAB 밸런스에 이식하지 않는다. -->
 <!-- v2.30.7.75: 별도 사표 계산판을 제거하고 각 수정항의 계산 종이에 사칙연산 계산기를 직접 배치. 사용자가 표시된 게임 사표 계수를 보고 계산하며 '= 입력' 시 해당 줄에 즉시 기록된다. 위아래 왕복/옮겨적기 제거. GST·탄도·피해·원정 수치 불변. -->
@@ -2894,10 +2894,10 @@ const MAINLINE_BDA_SYNC='금하선 v19.20.14 BDA + LAB 순발엄폐';
 const MAINLINE_FIRE_SYNC='금하선 v19.20.58 사격운용 정합';
 const LAB_MODEL_TAG='LAB · 본편 v19.20.14 기반';
 /* 탄도·산포·요소파괴·지면반응은 금하선 v19.20.14 공통코어를 기반으로 한다. 단, LAB은 HE 순발의 엄폐 25% 이상 추가감쇠를 별도 적용한다. */
-const SHELLS={he:{ko:'고폭탄',code:'HE',mass:43.5,dia:.155,ff:1,lethal:{air:64,quick:58,delay:50,time:76},peMul:1},dp:{ko:'DPICM · 이중목적탄',code:'DPICM',mass:46.5,dia:.155,ff:1.06,lethal:{time:85},peMul:1},hebb:{ko:'항력감소탄',code:'HE-BB',mass:47,dia:.155,ff:1,lethal:{air:58,quick:50,delay:30,time:64},bb:{factor:.58,burn:32},peMul:1.4},
+const SHELLS={he:{ko:'고폭탄',code:'HE',mass:43.5,dia:.155,ff:1,lethal:{air:64,quick:58,delay:50,time:76},peMul:1},dp:{ko:'DPICM · 이중목적탄',code:'DPICM',mass:46.5,dia:.155,ff:1.06,lethal:{air:85,quick:70,delay:35,time:85},peMul:1},hebb:{ko:'항력감소탄',code:'HE-BB',mass:47,dia:.155,ff:1,lethal:{air:58,quick:50,delay:30,time:64},bb:{factor:.58,burn:32},peMul:1.4},
  xt:{ko:'시험제작 장거리탄',code:'XR-1',mass:46.8,dia:.155,ff:1.01,lethal:{air:57,quick:51,delay:32,time:65},bb:{factor:.50,burn:37},peMul:1.50,expOnly:true,testWeapon:true,test:{dudAdd:.08,dispMul:1.10,wearMul:1.25,threatMul:1.12,v0Bonus:8}},
  pgm:{ko:'초정밀 유도탄',code:'PGM-T',mass:45.2,dia:.155,ff:1.00,lethal:{air:62,quick:59,delay:48,time:72},peMul:.58,expOnly:true,testWeapon:true,test:{dudAdd:.12,dispMul:.42,wearMul:1.20,threatMul:1.16,v0Bonus:0}},
- ef:{ko:'전자신관 시험탄',code:'EF-T',mass:43.8,dia:.155,ff:1.00,lethal:{air:68,quick:54,delay:45,time:82},peMul:1.05,allowedFuzes:['air','time'],expOnly:true,testWeapon:true,test:{dudAdd:.10,dispMul:1.00,wearMul:1.12,threatMul:1.08,v0Bonus:0,fuzeErrMul:.35}},
+ ef:{ko:'전자신관 시험탄',code:'EF-T',mass:43.8,dia:.155,ff:1.00,lethal:{air:68,quick:54,delay:45,time:82},peMul:1.05,allowedFuzes:['air','time','quick','delay'],expOnly:true,testWeapon:true,test:{dudAdd:.10,dispMul:1.00,wearMul:1.12,threatMul:1.08,v0Bonus:0,fuzeErrMul:.35,hobSet:{h:12,sd:2.2},fuzeRel:.996}},
  er:{ko:'사거리연장 실험탄',code:'ER-X',mass:48.0,dia:.155,ff:.99,lethal:{air:54,quick:47,delay:28,time:59},bb:{factor:.42,burn:44},peMul:1.70,expOnly:true,testWeapon:true,test:{dudAdd:.16,dispMul:1.25,wearMul:1.55,threatMul:1.22,v0Bonus:15}}};
 const FUZES={quick:'순발',delay:'지연',time:'시한',air:'근접(VT)'},SHEAF={converged:{ko:'집중',spacingM:0},parallel:{ko:'평행',spacingM:24},standard:{ko:'표준',byEffectWidth:.38},open:{ko:'개방',byEffectWidth:.52}},TIMING={volley:{ko:'일제사',effect:1,suppress:1,gapSec:0},tot:{ko:'동시탄착',effect:1.14,suppress:.92,gapSec:0,tot:true},sequential:{ko:'익차사',effect:.94,suppress:1.45,gapSec:3},staggered:{ko:'요란사격',effect:.84,suppress:2.05,gapSec:8}};
 /* v2.30.7.120 · 한 포대 판에서 고를 수 없는 발사 방식과 그 까닭.
@@ -2912,7 +2912,34 @@ const TIMING_SOLO_LOCK={
   tot:'한 포대로는 MRSI 라 미구현'
 };
 const FLIGHT_EXPOSURE={baseSec:24,fullSec:85,maxRangeMul:1.30,maxLatMul:1.14};const FALL_MODEL={alongBase:1.12,alongGain:-.10,crossBase:.68,crossGain:.38};
-const FUZE_SETTING={time:{stepSec:.5,errBandSec:.55,reliability01:.965},air:{stepSec:.5,errBandSec:.22,reliability01:.985},quick:{stepSec:0,errBandSec:0,reliability01:.992},delay:{stepSec:0,errBandSec:0,reliability01:.985}};
+const FUZE_SETTING={time:{stepSec:.1,errBandSec:.15,reliability01:.965},air:{stepSec:.5,errBandSec:.22,reliability01:.985},quick:{stepSec:0,errBandSec:0,reliability01:.992},delay:{stepSec:0,errBandSec:0,reliability01:.985}};
+
+/* ═══ v2.30.7.125 · 파열고도 — 금하선 v1.89 와 같은 자를 쓴다 ═══
+   두 판의 사격코어는 일치해야 한다. 아래 다섯은 rts.html 의 같은 이름과 값이 같다. */
+const BURST_OPT_M=12;                 /* 파편이 가장 넓게 듣는 높이 */
+function burstHeightMul(hB){ hB=+hB||0;
+  if(hB<1.5) return null;             /* 1.5m 아래는 순발 취급 — 배수가 없다 */
+  return hB<=BURST_OPT_M ? (0.55+0.45*hB/BURST_OPT_M)
+                         : Math.max(0.28, 1-Math.pow((hB-BURST_OPT_M)/34,1.4)); }
+const FUZE_HOB_M=BURST_OPT_M;         /* 고폭 시한 — 곡선 꼭대기를 노린다 */
+const DP_HOB_M=450;                   /* DPICM 개함고도 — 고정. FDC 는 지침대로 쏜다 (재열) */
+const DP_SUB={n:88,subR:8.5,refR:60,refH:450,minR:16,maxR:150,minH:80,groundDudK:1.6,lowArm:.45};
+function dpPattern(imp){
+  const h=+imp.burstH||0;
+  const low=(h<DP_SUB.minH);                      /* 너무 낮게 열렸다 — 자탄이 뭉친다 */
+  const R=low?DP_SUB.minR
+             :Math.max(DP_SUB.minR,Math.min(DP_SUB.maxR,DP_SUB.refR*Math.sqrt(h/DP_SUB.refH)));
+  const area=Math.PI*R*R,aSub=Math.PI*DP_SUB.subR*DP_SUB.subR;
+  let d=1-Math.exp(-(DP_SUB.n*aSub)/Math.max(1,area));
+  if(low) d*=DP_SUB.lowArm;                       /* 뭉쳐 떨어진 자탄은 상당수가 서지 못한다 */
+  d*=Math.max(0.25,1-(+imp.groundDudAdd01||0)*DP_SUB.groundDudK);
+  return {failed:low,R:R,density:d};
+}
+function dpPlateau(dNorm){                                 /* 자탄은 고르게 깔린다 — 가운데가 특별히 세지 않다 */
+  if(dNorm<=0.80) return 1.00;
+  if(dNorm>=1.05) return 0;
+  return 1-(dNorm-0.80)/0.25;
+}
 const DP_TARGET_MUL={inf:.68,mortar:.75,bty:1.20,veh:1.34,radar:.90,atgm:.65,cp:.40,armor:1.45};
 
 /* v1.9.10.17 EFFECT-ONLY: v19.15.18 gunId/shell/fuze 연출. 결과는 v1.9.10 원형처럼 연출 전에 확정한다. */
@@ -2929,7 +2956,7 @@ function fxSync(){let m=$('mapCv'),c=$('fxCv'),bar=$('fxFlight'),fl=$('fxMapFlas
 function fxScreen(p,w,h){let G=window.GEO;return{x:(p.e-G.E0)/G.SPAN*w,y:h-(p.n-G.N0)/G.SPAN*h}}function fxWorld(im){let g=match.cur.world.gunPos;return{e:g.e+im.e,n:g.n+im.n}}
 function fxClear(){let z=fxSync();if(z){z.x.setTransform(z.d,0,0,z.d,0,0);z.x.clearRect(0,0,z.w,z.h)}}
 function fxDrawFlight(imps,T){let z=fxSync();if(!z)return;let x=z.x;x.setTransform(z.d,0,0,z.d,0,0);x.clearRect(0,0,z.w,z.h);let A=fxScreen(match.cur.world.gunPos,z.w,z.h);for(let im of imps){let q=(T-(im.stepSec||0))/Math.max(.01,im.tof||1);if(q<0||q>1)continue;let B=fxScreen(fxWorld(im),z.w,z.h),cx=A.x+(B.x-A.x)*q,cy=A.y+(B.y-A.y)*q,col=im.shell==='dp'?'#ffd278':im.shell==='hebb'?'#ffb070':((im.fuze==='air'||im.fuze==='time')?'#a8dcff':'#ffe0a0');x.strokeStyle='rgba(255,222,160,.18)';x.setLineDash([4,5]);x.beginPath();x.moveTo(A.x,A.y);x.lineTo(B.x,B.y);x.stroke();x.setLineDash([]);x.fillStyle=col;x.beginPath();x.arc(cx,cy,3.2,0,Math.PI*2);x.fill()}}
-function fxDrawBurst(imps,t0){let z=fxSync();if(!z)return false;let age=performance.now()-t0,life=1550,q=Math.max(0,Math.min(1,age/life)),x=z.x;x.setTransform(z.d,0,0,z.d,0,0);x.clearRect(0,0,z.w,z.h);let mpp=window.GEO.SPAN/Math.max(1,z.w);imps.forEach((im,i)=>{if(im.dud)return;let P=fxScreen(fxWorld(im),z.w,z.h),SH=SHELLS[im.shell]||SHELLS.he,lr=im.shell==='dp'?SH.lethal.time:(SH.lethal[im.fuze]||40),air=((im.fuze==='air'||im.fuze==='time')&&(im.burstH||0)>=1.5),lift=air?Math.max(7,Math.min(26,(im.burstH||0)*.8)):0,sx=P.x,sy=P.y-lift,wr=(230*(lr/45))*Math.pow(Math.max(.001,q),.42)/mpp;if(air){x.strokeStyle=`rgba(120,190,255,${(.38*(1-q)).toFixed(3)})`;x.setLineDash([4,3]);x.beginPath();x.moveTo(P.x,P.y);x.lineTo(sx,sy);x.stroke();x.setLineDash([])}if(q<.62&&wr>1.2){let a=1-q/.62;x.strokeStyle=air?`rgba(160,220,255,${(.72*a).toFixed(3)})`:`rgba(255,222,150,${(.72*a).toFixed(3)})`;x.lineWidth=Math.max(1,3.2*a);x.beginPath();x.arc(sx,sy,wr*(air?.86:1),0,Math.PI*2);x.stroke()}if(q<.22){let a=Math.pow(1-q/.22,1.6),fr=Math.max(4,(lr*.62)/mpp)*(0.45+a*1.15),c1=im.shell==='dp'?'255,196,88':im.shell==='hebb'?'255,168,72':'255,176,72';x.fillStyle=`rgba(255,214,120,${(.55*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*2.4,0,Math.PI*2);x.fill();x.fillStyle=`rgba(${c1},${(.78*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*1.35,0,Math.PI*2);x.fill();x.fillStyle=`rgba(255,252,236,${(.96*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*.6,0,Math.PI*2);x.fill()}if(im.shell==='dp'&&q<.42){let a=1-q/.42,rr=Math.max(8,wr*.45);for(let k=0;k<5;k++){let th=i*2.399+k*1.26,rx=sx+Math.cos(th)*rr*(.55+.08*k),ry=sy+Math.sin(th)*rr*(.35+.07*k);x.fillStyle=`rgba(255,214,120,${(.3*a).toFixed(3)})`;x.beginPath();x.arc(rx,ry,2.5+a*3,0,Math.PI*2);x.fill()}}let sr=((air?112.5:150)*(lr/45))*(.22+q*1.15)/mpp;if(sr>1){let rise=air?sr*.4:sr*.22*q,sm0=im.shell==='dp'?'176,154,118':im.shell==='hebb'?'150,136,118':'146,132,112',sm1=im.shell==='dp'?'112,94,72':im.shell==='hebb'?'94,82,68':'88,76,62';x.fillStyle=`rgba(${air?'214,214,206':sm0},${(.34*(1-q)).toFixed(3)})`;x.beginPath();x.arc(sx,sy-rise,sr*1.25,0,Math.PI*2);x.fill();x.fillStyle=`rgba(${air?'184,186,182':sm1},${(.52*(1-q*.85)).toFixed(3)})`;x.beginPath();x.arc(sx,sy-rise*.7,sr*.66,0,Math.PI*2);x.fill()}if(air&&q<.75){x.fillStyle=`rgba(190,230,255,${(.7*(1-q/.75)).toFixed(3)})`;x.font='10px ui-monospace,monospace';x.fillText('+'+Math.round(im.burstH||0)+'m',sx+6,sy-6)}});return age<life}
+function fxDrawBurst(imps,t0){let z=fxSync();if(!z)return false;let age=performance.now()-t0,life=1550,q=Math.max(0,Math.min(1,age/life)),x=z.x;x.setTransform(z.d,0,0,z.d,0,0);x.clearRect(0,0,z.w,z.h);let mpp=window.GEO.SPAN/Math.max(1,z.w);imps.forEach((im,i)=>{if(im.dud)return;let P=fxScreen(fxWorld(im),z.w,z.h),SH=SHELLS[im.shell]||SHELLS.he,lr=(SH.lethal[im.fuze]||SH.lethal.time||40),air=((im.fuze==='air'||im.fuze==='time')&&(im.burstH||0)>=1.5),lift=air?Math.max(7,Math.min(26,(im.burstH||0)*.8)):0,sx=P.x,sy=P.y-lift,wr=(230*(lr/45))*Math.pow(Math.max(.001,q),.42)/mpp;if(air){x.strokeStyle=`rgba(120,190,255,${(.38*(1-q)).toFixed(3)})`;x.setLineDash([4,3]);x.beginPath();x.moveTo(P.x,P.y);x.lineTo(sx,sy);x.stroke();x.setLineDash([])}if(q<.62&&wr>1.2){let a=1-q/.62;x.strokeStyle=air?`rgba(160,220,255,${(.72*a).toFixed(3)})`:`rgba(255,222,150,${(.72*a).toFixed(3)})`;x.lineWidth=Math.max(1,3.2*a);x.beginPath();x.arc(sx,sy,wr*(air?.86:1),0,Math.PI*2);x.stroke()}if(q<.22){let a=Math.pow(1-q/.22,1.6),fr=Math.max(4,(lr*.62)/mpp)*(0.45+a*1.15),c1=im.shell==='dp'?'255,196,88':im.shell==='hebb'?'255,168,72':'255,176,72';x.fillStyle=`rgba(255,214,120,${(.55*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*2.4,0,Math.PI*2);x.fill();x.fillStyle=`rgba(${c1},${(.78*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*1.35,0,Math.PI*2);x.fill();x.fillStyle=`rgba(255,252,236,${(.96*a).toFixed(3)})`;x.beginPath();x.arc(sx,sy,fr*.6,0,Math.PI*2);x.fill()}if(im.shell==='dp'&&q<.42){let a=1-q/.42,rr=Math.max(8,wr*.45);for(let k=0;k<5;k++){let th=i*2.399+k*1.26,rx=sx+Math.cos(th)*rr*(.55+.08*k),ry=sy+Math.sin(th)*rr*(.35+.07*k);x.fillStyle=`rgba(255,214,120,${(.3*a).toFixed(3)})`;x.beginPath();x.arc(rx,ry,2.5+a*3,0,Math.PI*2);x.fill()}}let sr=((air?112.5:150)*(lr/45))*(.22+q*1.15)/mpp;if(sr>1){let rise=air?sr*.4:sr*.22*q,sm0=im.shell==='dp'?'176,154,118':im.shell==='hebb'?'150,136,118':'146,132,112',sm1=im.shell==='dp'?'112,94,72':im.shell==='hebb'?'94,82,68':'88,76,62';x.fillStyle=`rgba(${air?'214,214,206':sm0},${(.34*(1-q)).toFixed(3)})`;x.beginPath();x.arc(sx,sy-rise,sr*1.25,0,Math.PI*2);x.fill();x.fillStyle=`rgba(${air?'184,186,182':sm1},${(.52*(1-q*.85)).toFixed(3)})`;x.beginPath();x.arc(sx,sy-rise*.7,sr*.66,0,Math.PI*2);x.fill()}if(air&&q<.75){x.fillStyle=`rgba(190,230,255,${(.7*(1-q/.75)).toFixed(3)})`;x.font='10px ui-monospace,monospace';x.fillText('+'+Math.round(im.burstH||0)+'m',sx+6,sy-6)}});return age<life}
 function fxPlay(imps,label,done){
  if(fxBusy||!imps||!imps.length)return false;
  fxBusy=true;
@@ -3774,7 +3801,11 @@ function buildFriendlyContact(R,idx){
 }
 function friendlyDamageOutcome(R,impacts,tag){
  let F=R&&R.friendly;if(!F||!F.active||!F.elements||!F.elements.length)return{killed:0,penalty:0};let T=R.target,O=currentOpts(),rnd=mulberry32(hash32(match.seed+'|'+match.gunId+'|R'+match.idx+'|FRIEND-BDA|'+tag)),hard=clamp(.25+F.state.hard,0,.9),cover=F.state.cover,killed=0,isFFE=impacts.some(im=>!!im.fireForEffect),isTOT=impacts.some(im=>!!im.tot),salvoSize=Math.max(1,impacts.reduce((m,im)=>Math.max(m,im.salvoSize||impacts.length),1)),densityBonus=isFFE?(.80+.40*(1-Math.exp(-salvoSize/10))):1,tm=TIMING[O.timing]||TIMING.volley,timingBonus=tm.effect!=null?tm.effect:(isTOT?1.14:1);
- impacts.forEach(im=>{if(im.dud)return;let sh=SHELLS[im.shell]||SHELLS.he,lr=im.shell==='dp'?sh.lethal.time:(sh.lethal[im.fuze]||0);if(!lr)return;if((im.fuze==='air'||im.fuze==='time')&&im.burstH!=null){let hB=im.burstH;if(hB<1.5)lr=sh.lethal.quick||lr*.7;else{let opt=12,f=hB<=opt?(.55+.45*hB/opt):Math.max(.28,1-Math.pow((hB-opt)/34,1.4));lr*=f}}let groundInfluence=((im.fuze==='air'||im.fuze==='time')&&(im.burstH||0)>=1.5)?.35:1,gRad=1+((im.groundRadiusMul||1)-1)*groundInfluence,gDmg=1+((im.groundDamageMul||1)-1)*groundInfluence;lr*=gRad;let shape=fallEffectShape(im.fall),alongR=Math.max(1,lr*shape.alongMul),crossR=Math.max(1,lr*shape.crossMul),axis=T.az/MIL,ux=Math.sin(axis),uy=Math.cos(axis),vx=Math.cos(axis),vy=-Math.sin(axis),tp=targetAtImpact(im.tof);F.elements.forEach(el=>{if(el.alive===false)return;let de=(tp.e+el.de)-im.e,dn=(tp.n+el.dn)-im.n,da=de*ux+dn*uy,dc=de*vx+dn*vy,dNorm=Math.hypot(da/alongR,dc/crossR);if(dNorm>1.6)return;let p=Math.exp(-(dNorm*dNorm)/(2*.60*.60));p*=1-Math.min(.85,hard);let covK=im.fuze==='air'?.55:(im.fuze==='time'?.62:(im.fuze==='delay'?.70:1));p*=1-cover*covK;p*=gDmg*densityBonus*timingBonus;if(im.shell==='dp')p*=1.05;else if(im.fuze==='air'||im.fuze==='time')p*=hard<=.35?1.10:.82;else if(im.fuze==='delay')p*=hard<.35?.75:1.12;if(isFFE&&dNorm<.42)p=Math.max(p,.08*(1-Math.min(.75,hard)));p=clamp(p,0,.94);if(rnd()<p){el.alive=false;el.hp=0;killed++}})});
+ impacts.forEach(im=>{if(im.dud)return;let sh=SHELLS[im.shell]||SHELLS.he,lr=(sh.lethal[im.fuze]||sh.lethal.time||0);if(!lr)return;
+  let dpDens=1,isDp=(im.shell==='dp'),dpOK=false;   /* v2.30.7.125 · 우군 쪽에도 같은 자를 댄다 */
+  if(isDp){let P=dpPattern(im);lr=P.R;dpDens=P.density;dpOK=true}
+  if(!isDp&&(im.fuze==='air'||im.fuze==='time')&&im.burstH!=null){let f=burstHeightMul(im.burstH);if(f==null)lr=sh.lethal.quick||lr*.7;else lr*=f}
+  let groundInfluence=((im.fuze==='air'||im.fuze==='time')&&(im.burstH||0)>=1.5)?.35:1,gRad=1+((im.groundRadiusMul||1)-1)*groundInfluence,gDmg=1+((im.groundDamageMul||1)-1)*groundInfluence;lr*=gRad;let shape=fallEffectShape(im.fall),alongR=Math.max(1,lr*(dpOK?1:shape.alongMul)),crossR=Math.max(1,lr*(dpOK?1:shape.crossMul)),axis=T.az/MIL,ux=Math.sin(axis),uy=Math.cos(axis),vx=Math.cos(axis),vy=-Math.sin(axis),tp=targetAtImpact(im.tof);F.elements.forEach(el=>{if(el.alive===false)return;let de=(tp.e+el.de)-im.e,dn=(tp.n+el.dn)-im.n,da=de*ux+dn*uy,dc=de*vx+dn*vy,dNorm=Math.hypot(da/alongR,dc/crossR);if(dNorm>1.6)return;let p=(dpOK?dpPlateau(dNorm):Math.exp(-(dNorm*dNorm)/(2*.60*.60)))*dpDens;p*=1-Math.min(.85,hard);let covK=im.fuze==='air'?.55:(im.fuze==='time'?.62:(im.fuze==='delay'?.70:1));p*=1-cover*covK;p*=gDmg*densityBonus*timingBonus;if(im.shell==='dp')p*=1.05;else if(im.fuze==='air'||im.fuze==='time')p*=hard<=.35?1.10:.82;else if(im.fuze==='delay')p*=hard<.35?.75:1.12;if(isFFE&&dNorm<.42)p=Math.max(p,.08*(1-Math.min(.75,hard)));p=clamp(p,0,.94);if(rnd()<p){el.alive=false;el.hp=0;killed++}})});
  F.elements.forEach(el=>{if(el.alive!==false)el.hp=1});F.killed=F.elements.filter(x=>x.alive===false).length;let add=killed*450;F.penalty+=add;F.lastOutcome={tag,killed,penalty:add};return F.lastOutcome
 }
 function applyFriendlyScore(R){let F=R&&R.friendly,B=R&&R.ffe;if(!F||!F.active||!B)return;B.preFriendlyScore=B.score;B.friendlyKilled=F.killed||0;B.friendlyBefore=F.before||F.elements.length;B.friendlyPenalty=F.penalty||0;B.score=Math.max(0,B.score-B.friendlyPenalty)}
@@ -3863,7 +3894,7 @@ function shellPhys(k){let b=SHELLS[k],g=gun();return Object.assign({},b,{mass:b.
    그동안 document.title 을 두 곳에서 각각 세워, 나중에 도는 쪽이 이겨
    화면에는 옛 판본(v2.30.7.48)이 남아 있었다. 판본을 화면에서 확인할 수 없으니
    고친 것이 반영됐는지 알 방법도 없었다. */
-window.LAB_VERSION='FIRE DIRECTION LAB v2.30.7.124 · 제파별 구역 배분';
+window.LAB_VERSION='FIRE DIRECTION LAB v2.30.7.125 · 공중파열·개함';
 const SHEAF_MAX_SPACING_M=90;
 /* v2.30.7.116 · 수동지휘 단계접기 계수.
    cap: 방호·엄폐를 최대 몇 할까지 깎을 수 있는가(1.0이면 맨몸이 되므로 0.55로 묶는다).
@@ -3941,7 +3972,7 @@ function targetAttitude(R){
 /* 유효폭: 사계 폭 + 산포 유효폭. 이 폭을 넘는 장축은 구역으로 쪼갠다. */
 function targetZoneWidthM(R,O){
  O=O||currentOpts();let g=gun(),guns=Math.max(1,g.guns||6),
-  sh=SHELLS[O.shell]||SHELLS.he,lr=O.shell==='dp'?sh.lethal.time:(sh.lethal[O.fuze]||40),
+  sh=SHELLS[O.shell]||SHELLS.he,lr=(sh.lethal[O.fuze]||sh.lethal.time||40),
   /* v2.30.7.116 · 유효폭은 «표준 사계» 기준으로 잡는다.
      개방 사계는 스스로 정면에 맞춰 벌어지므로(v95), 그 폭으로 계산하면
      구역 폭이 표적 장축보다 커져 분할이 영원히 일어나지 않는다(실측: 장축 358m인데 n=1).
@@ -4142,7 +4173,7 @@ function sheafFrontageSpacing(base,guns,R){
  if(!(f>0))return base;
  return Math.min(SHEAF_MAX_SPACING_M,Math.max(base,f/n));
 }
-function sheafSpacingMain(O){let m=SHEAF[O.sheaf]||SHEAF.converged;if(m.spacingM!=null)return m.spacingM;let sh=SHELLS[O.shell]||SHELLS.he,lr=O.shell==='dp'?sh.lethal.time:(sh.lethal[O.fuze]||40);let base=(m.byEffectWidth||0)*lr*2;
+function sheafSpacingMain(O){let m=SHEAF[O.sheaf]||SHEAF.converged;if(m.spacingM!=null)return m.spacingM;let sh=SHELLS[O.shell]||SHELLS.he,lr=(sh.lethal[O.fuze]||sh.lethal.time||40);let base=(m.byEffectWidth||0)*lr*2;
  if(O.sheaf==='open')base=sheafFrontageSpacing(base,(gun()&&gun().guns)||6,match&&match.cur);
  return base}
 function mainlineDispersionParts(range,tof,lotRec){
@@ -6938,8 +6969,21 @@ function fireOne(ffe,Soverride=null){
   // Main firing model: nominal ballistic impact first, then dispersion/sheaf/drift displacements.
   const _wz=(_waveOff&&_waveOff.length)?_waveOff[Math.min(roundIdx,_waveOff.length-1)]:null;
   let ie=res.e+along.e*aErr+perp.e*(dErr+dM)+lead.e+(_wz?(+_wz.de||0):0),inn=res.n+along.n*aErr+perp.n*(dErr+dM)+lead.n+(_wz?(+_wz.dn||0):0),FSET=FUZE_SETTING[O.fuze]||{stepSec:0,errBandSec:0,reliability01:1},burstH=0,setErr=0;
-  if(FSET.stepSec>0){let want=res.t,set=Math.round(want/FSET.stepSec)*FSET.stepSec;setErr=(set-want)+N()*FSET.errBandSec*.5*(XP?Math.min(XP.fuzeErrMul,expArt('fuzeset')?.55:1):1)*((XP&&expIsTestShell(O.shell))?expTestFuzeErrMul(O.shell):1);if(O.fuze==='air')setErr*=.30;let vz=Math.max(1,res.vt*Math.sin(res.fallMil/MIL));burstH=Math.max(0,-setErr*vz);if(O.fuze==='air')burstH=Math.max(4,11+N()*4+burstH*.35)}
-  let lotDud=shotRnd()>Math.max(0,lot.reliability01-heat01*.006),fuzeDud=shotRnd()>(FSET.reliability01!=null?FSET.reliability01:1),testDud=(XP&&expIsTestShell(O.shell))?(shotRnd()<expTestDudAdd(O.shell)):false,wg=(R.world&&R.world.gunPos)?{e:R.world.gunPos.e+ie,n:R.world.gunPos.n+inn}:null,gr=(wg&&window.GEO)?window.GEO.groundReaction(wg.e,wg.n):targetGroundReaction(T),groundContact=!((O.fuze==='air'||O.fuze==='time')&&burstH>=1.5),groundDud=groundContact&&(shotRnd()<gr.dudAdd01),tm=tmFire,wave=roundIdx,stepSec=(tm.gapSec?(tm.gapSec*gunIdx+tm.gapSec*_gn*wave):0)+(_wavePlan?waveRelayBefore(_wavePlan,wave):0);
+  /* v2.30.7.125 · 전자신관은 눈금을 쓰지 않는다 — 탄이 스스로 지면까지 남은 거리를 재고 제 고도에서 연다 */
+  let _hset=(SHELLS[O.shell]&&SHELLS[O.shell].test&&SHELLS[O.shell].test.hobSet)||null;
+  if(_hset&&(O.fuze==='time'||O.fuze==='air')&&O.shell!=='dp'){burstH=Math.max(2,_hset.h+N()*_hset.sd);setErr=0}
+  else if(FSET.stepSec>0){
+   let vz=Math.max(1,res.vt*Math.sin(res.fallMil/MIL)),
+       hobM=(O.shell==='dp')?DP_HOB_M:((O.fuze==='time')?FUZE_HOB_M:0),
+       wantRaw=res.t-hobM/vz, want=Math.max(FSET.stepSec,wantRaw),
+       set=Math.round(want/FSET.stepSec)*FSET.stepSec,
+       dev=(set-want)+N()*FSET.errBandSec*.5;
+   dev*=(XP?Math.min(XP.fuzeErrMul,expArt('fuzeset')?.55:1):1)*((XP&&expIsTestShell(O.shell))?expTestFuzeErrMul(O.shell):1);
+   if(O.fuze==='air')dev*=.30;
+   setErr=Math.round(dev*100)/100;
+   burstH=Math.max(0,(res.t-(want+dev))*vz);
+   if(O.fuze==='air')burstH=Math.max(4,11+N()*4+burstH*.35)}
+  let lotDud=shotRnd()>Math.max(0,lot.reliability01-heat01*.006),_efRel=(SHELLS[O.shell]&&SHELLS[O.shell].test&&SHELLS[O.shell].test.fuzeRel)||0,fuzeDud=shotRnd()>(_efRel>0?_efRel:(FSET.reliability01!=null?FSET.reliability01:1)),testDud=(XP&&expIsTestShell(O.shell))?(shotRnd()<expTestDudAdd(O.shell)):false,wg=(R.world&&R.world.gunPos)?{e:R.world.gunPos.e+ie,n:R.world.gunPos.n+inn}:null,gr=(wg&&window.GEO)?window.GEO.groundReaction(wg.e,wg.n):targetGroundReaction(T),groundContact=!((O.fuze==='air'||O.fuze==='time')&&burstH>=1.5),groundDud=groundContact&&(shotRnd()<gr.dudAdd01),tm=tmFire,wave=roundIdx,stepSec=(tm.gapSec?(tm.gapSec*gunIdx+tm.gapSec*_gn*wave):0)+(_wavePlan?waveRelayBefore(_wavePlan,wave):0);
   arr.push({e:ie,n:inn,tof:res.t,fall:res.fallMil,shell:O.shell,fuze:O.fuze,flightR:fx.rangeMul,flightD:fx.latMul,burstH:Math.round(burstH*10)/10,setErrSec:Math.round(setErr*100)/100,lotDud,fuzeDud,groundDud,testDud,dud:lotDud||fuzeDud||groundDud||testDud,groundKo:gr.classKo,groundStateKo:gr.stateKo,groundRadiusMul:gr.radiusMul,groundDamageMul:gr.damageMul,groundDudAdd01:gr.dudAdd01,groundContact,fireForEffect:!!ffe,salvoSize:n,timing:O.timing,tot:O.timing==='tot',stepSec,wave:wave,zoneIdx:(_wavePlan?_wavePlan[Math.min(wave,_wavePlan.length-1)]:null),land:stepSec+res.t,erratic:ex>1,shape:fallEffectShape(res.fallMil)})
  }
  if(XP&&arr.length)expConsume(O.shell,arr.length,O.ch);
@@ -7014,11 +7058,18 @@ function evaluate(impacts){
  let elementDiag=T.elements.map((el,i)=>({idx:i+1,role:el.role||'',functionNote:targetElementFunctionNote(T.typeKey,el.role||'',(LAB_I18N&&LAB_I18N.lang)||'ko'),aliveBefore:el.alive!==false,nearestCenterM:Infinity,nearestEdgeM:Infinity,tests:0,maxP:0,baseP:0,impactNo:0,roll:null,killed:false,effects:[]}));
  impacts.forEach((im,idx)=>{
   if(im.dud){impStats.push({off:Math.round(Math.hypot(im.e-targetAtImpact(im.tof).e,im.n-targetAtImpact(im.tof).n)),near:0,tof:im.tof,fall:im.fall,flightR:im.flightR||1,flightD:im.flightD||1,alongR:0,crossR:0,shape:'불발',def:defilade,dud:true,burstH:im.burstH||0,fuzeDud:!!im.fuzeDud,lotDud:!!im.lotDud,groundDud:!!im.groundDud,suppressionHit:false});return}
-  let sh=SHELLS[im.shell]||SHELLS.he,lr=im.shell==='dp'?sh.lethal.time:(sh.lethal[im.fuze]||0);if(!lr)return;
-  if((im.fuze==='air'||im.fuze==='time')&&im.burstH!=null){let hB=im.burstH;if(hB<1.5)lr=sh.lethal.quick||lr*.7;else{let opt=12,f=hB<=opt?(.55+.45*hB/opt):Math.max(.28,1-Math.pow((hB-opt)/34,1.4));lr*=f}}
+  let sh=SHELLS[im.shell]||SHELLS.he,lr=(sh.lethal[im.fuze]||sh.lethal.time||0);if(!lr)return;
+  /* v2.30.7.125 · DPICM 은 파편 곡선이 아니라 «개함 곡선»을 탄다 — 높이가 자탄이 퍼지는 넓이를 정한다 */
+  let dpDens=1,isDp=(im.shell==='dp'),dpOK=false;
+  if(isDp){let P=dpPattern(im);
+   lr=P.R;dpDens=P.density;dpOK=true;
+   im.dpR=Math.round(lr);im.dpDensity=Math.round(dpDens*1000)/1000;im.dpOK=!P.failed}
+  if(!isDp&&(im.fuze==='air'||im.fuze==='time')&&im.burstH!=null){let f=burstHeightMul(im.burstH);
+   if(f==null)lr=sh.lethal.quick||lr*.7;else lr*=f}
   let def=slopeMil>0?clamp((im.fall-slopeMil*1.35)/Math.max(1,im.fall),.18,1):1;lr*=def;
   let groundInfluence=((im.fuze==='air'||im.fuze==='time')&&(im.burstH||0)>=1.5)?.35:1,gRad=1+((im.groundRadiusMul||1)-1)*groundInfluence,gDmg=1+((im.groundDamageMul||1)-1)*groundInfluence;lr*=gRad;
-  let shape=fallEffectShape(im.fall),alongR=Math.max(1,lr*shape.alongMul),crossR=Math.max(1,lr*shape.crossMul),axis=T.az/MIL,ux=Math.sin(axis),uy=Math.cos(axis),vx=Math.cos(axis),vy=-Math.sin(axis),near=0,tp=targetAtImpact(im.tof),relE=im.e-tp.e,relN=im.n-tp.n;
+  let shape=fallEffectShape(im.fall),_shA=dpOK?1:shape.alongMul,_shC=dpOK?1:shape.crossMul,/* 자탄 무늬는 둥글다 — 낙각을 타지 않는다 */
+      alongR=Math.max(1,lr*_shA),crossR=Math.max(1,lr*_shC),axis=T.az/MIL,ux=Math.sin(axis),uy=Math.cos(axis),vx=Math.cos(axis),vy=-Math.sin(axis),near=0,tp=targetAtImpact(im.tof),relE=im.e-tp.e,relN=im.n-tp.n;
   shapeLong+=alongR;shapeCross+=crossR;shapeArea+=shape.areaMul;shapeN++;fallSum+=im.fall||0;tofSum+=im.tof||0;frSum+=im.flightR||1;fdSum+=im.flightD||1;
   const suppressionHit=targetSuppressionOverlap(T.typeKey,T.elements,relE,relN,ux,uy,vx,vy,alongR,crossR);if(suppressionHit)suppImpactUnits+=1;
   const covNow=coverAt(im);if(covNow>coverEnd)coverEnd=covNow;
@@ -7027,7 +7078,7 @@ function evaluate(impacts){
    let dInfo=targetElementDamageInfo(T.typeKey,T.elements,ei,relE,relN,ux,uy,vx,vy,alongR,crossR,-1),Dg=elementDiag[ei];
    if(dInfo.centerM<Dg.nearestCenterM){Dg.nearestCenterM=dInfo.centerM;Dg.nearestEdgeM=dInfo.edgeM}
    let dNorm=dInfo.norm;if(dNorm>1.0)return;
-   let baseP=Math.exp(-(dNorm*dNorm)/(2*.60*.60)),p=baseP;
+   let baseP=(dpOK?dpPlateau(dNorm):Math.exp(-(dNorm*dNorm)/(2*.60*.60)))*dpDens,p=baseP;
    /* v2.30.7.116 · 수동지휘 단계접기
       이전에는 요소마다 즉사 판정 한 번뿐이었고, 실패하면 완전 무손상으로 남았다(el.hp는 죽을 때 0이 될 뿐 깎이지 않는다).
       그래서 방호가 높은 참호·벙커는 남은 소수 요소에 대해 매 효력사가 «낮은 확률의 독립 동전던지기»가 되고,
@@ -7074,7 +7125,7 @@ function evaluate(impacts){
   impStats.push({off:Math.round(Math.hypot(relE,relN)),near,tof:im.tof,fall:im.fall,flightR:im.flightR||1,flightD:im.flightD||1,alongR,crossR,shape:shape.ko,def,dud:false,burstH:im.burstH||0,fuzeDud:false,lotDud:false,groundDud:false,suppressionHit})
  });
  T.elements.forEach(el=>{if(el.alive!==false)el.hp=1});let left=T.elements.filter(x=>x.alive!==false).length,damagePct=before?Math.round((before-left)/before*100):0,actual=targetMeanPoint(R),mpi={e:0,n:0};if(impacts.length){mpi.e=impacts.reduce((a,p)=>a+p.e,0)/impacts.length;mpi.n=impacts.reduce((a,p)=>a+p.n,0)/impacts.length}
- let mpiOff=Math.hypot(mpi.e-actual.e,mpi.n-actual.n),lethalSpan=(SHELLS[O.shell]&&(O.shell==='dp'?SHELLS[O.shell].lethal.time:SHELLS[O.shell].lethal[O.fuze]))||40,shape0=fallEffectShape(shapeN?fallSum/shapeN:fall0),supp=Math.min(100,suppImpactUnits*7*(1-cover*.6)*(isFFE?1.18:1)*(tm.suppress||1)),functional=targetFunctionalState(T.typeKey,T.elements),verdict='효과 없음',raw=damagePct*10,mult=1,damageScore=Math.round(raw),suppScoreData=suppressionScoreFor(supp,left,before),suppressionScore=suppScoreData.score,manualAcc=0,manualSpeed=0;
+ let mpiOff=Math.hypot(mpi.e-actual.e,mpi.n-actual.n),lethalSpan=(SHELLS[O.shell]&&(SHELLS[O.shell].lethal[O.fuze]||SHELLS[O.shell].lethal.time))||40,shape0=fallEffectShape(shapeN?fallSum/shapeN:fall0),supp=Math.min(100,suppImpactUnits*7*(1-cover*.6)*(isFFE?1.18:1)*(tm.suppress||1)),functional=targetFunctionalState(T.typeKey,T.elements),verdict='효과 없음',raw=damagePct*10,mult=1,damageScore=Math.round(raw),suppScoreData=suppressionScoreFor(supp,left,before),suppressionScore=suppScoreData.score,manualAcc=0,manualSpeed=0;
  if(damagePct>=75||left<=0){verdict='격멸';functional.status='destroyed';functional.missionKill=true;functional.neutralized=true;functional.capability=0;functional.ko='격멸';functional.en='Destroyed';functional.ja='撃滅';Object.keys(functional.channels||{}).forEach(k=>functional.channels[k]=0)}
  else if(functional.composite&&functional.missionKill)verdict='무력화';
  else if(!functional.composite&&damagePct>=(T.typeKey==='trench'?60:40))verdict='무력화';
@@ -7845,7 +7896,7 @@ function resetInputs(){let T=match.cur.target,g=gun();$('shell').value='he';expS
      hard=(+TD.hard||0)+(+ST.hard||0)}catch(e){}
    if(hard>=SHEAF_HARD_LIMIT)return 'standard';
    let f=targetFrontageM(match.cur),g=(gun()&&gun().guns)||6,sh=SHELLS[$('shell').value]||SHELLS.he,
-       lr=($('shell').value==='dp')?sh.lethal.time:(sh.lethal[$('fuze').value]||40),
+       lr=(sh.lethal[$('fuze').value]||sh.lethal.time||40),
        stdW=(SHEAF.standard.byEffectWidth||0)*lr*2*(g-1);
    return (f>stdW*1.2)?'open':'standard';
   }catch(e){return 'standard'}})();$('timing').value='volley';$('lead').value=T.state.move?'1':'0';let z=recommendFireSetup(),ch=z?z.ch:g.v0.length-1;if(z)$('traj').value=z.traj;$('charge').value=String(clamp(ch,0,g.v0.length-1));$('manQe').value='';$('manAz').value='';$('manTof').value='';match.cur.manualDesk=null;match.cur.solution=null}
@@ -10529,6 +10580,10 @@ LAB_I18N.add('ja',{
    본편 RTS 가 R.act·R.snapshot 을 연 것과 같은 뜻이다 — 읽기만 하는 문이다. */
 window.__LABTEST={
   get match(){return match}, get rng(){return rng},
+  /* v2.30.7.125 · 파열고도·개함 — 금하선과 같은 자인지 밖에서 댈 수 있게 연다 */
+  burstHeightMul:burstHeightMul, dpPattern:dpPattern, dpPlateau:dpPlateau,
+  BURST_OPT_M:BURST_OPT_M, FUZE_HOB_M:FUZE_HOB_M, DP_HOB_M:DP_HOB_M, DP_SUB:DP_SUB,
+  FUZE_SETTING:FUZE_SETTING, SHELLS:SHELLS,
   targetZones:function(R,O){return targetZones(R||(match&&match.cur),O||currentOpts())},
   currentOpts:function(){return currentOpts()},
   targetAttitude:function(R){return targetAttitude(R||(match&&match.cur))},
@@ -10864,7 +10919,7 @@ window.__GRID=function(VOL,REPS){
      hard=(+TD.hard||0)+(+ST.hard||0)}catch(e){}
    if(hard>=SHEAF_HARD_LIMIT)return 'standard';
    let f=targetFrontageM(R),g=(gun()&&gun().guns)||6,sh=SHELLS[$('shell').value]||SHELLS.he,
-       lr=($('shell').value==='dp')?sh.lethal.time:(sh.lethal[$('fuze').value]||40),
+       lr=(sh.lethal[$('fuze').value]||sh.lethal.time||40),
        stdW=(SHEAF.standard.byEffectWidth||0)*lr*2*(g-1);
    return (f>stdW*1.2)?'open':'standard';
   }catch(e){return 'standard'}})();$('timing').value='volley';$('lead').value='1';
@@ -10932,7 +10987,7 @@ window.LAB_ADJUST79={
      hard=(+TD.hard||0)+(+ST.hard||0)}catch(e){}
    if(hard>=SHEAF_HARD_LIMIT)return 'standard';
    let f=targetFrontageM(R),g=(gun()&&gun().guns)||6,sh=SHELLS[$('shell').value]||SHELLS.he,
-       lr=($('shell').value==='dp')?sh.lethal.time:(sh.lethal[$('fuze').value]||40),
+       lr=(sh.lethal[$('fuze').value]||sh.lethal.time||40),
        stdW=(SHEAF.standard.byEffectWidth||0)*lr*2*(g-1);
    return (f>stdW*1.2)?'open':'standard';
   }catch(e){return 'standard'}})();if($('timing'))$('timing').value='volley';if($('lead'))$('lead').value='1';
@@ -10972,7 +11027,7 @@ window.LAB_ADJUST79={
      hard=(+TD.hard||0)+(+ST.hard||0)}catch(e){}
    if(hard>=SHEAF_HARD_LIMIT)return 'standard';
    let f=targetFrontageM(R),g=(gun()&&gun().guns)||6,sh=SHELLS[$('shell').value]||SHELLS.he,
-       lr=($('shell').value==='dp')?sh.lethal.time:(sh.lethal[$('fuze').value]||40),
+       lr=(sh.lethal[$('fuze').value]||sh.lethal.time||40),
        stdW=(SHEAF.standard.byEffectWidth||0)*lr*2*(g-1);
    return (f>stdW*1.2)?'open':'standard';
   }catch(e){return 'standard'}})();if($('timing'))$('timing').value='volley';if($('lead'))$('lead').value='1';
