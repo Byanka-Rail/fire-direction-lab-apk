@@ -15,6 +15,7 @@ import android.provider.MediaStore;
 import android.view.Window;
 import android.webkit.JavascriptInterface;
 import android.webkit.MimeTypeMap;
+import android.webkit.RenderProcessGoneDetail;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -173,7 +174,34 @@ public class MainActivity extends Activity {
                 super.onPageFinished(view, url);
                 injectDownloadBridge();
             }
+
+            /* 다른 앱을 보다 돌아오면 흰 화면만 뜨던 것 — 안드로이드가 뒤에 있던 게임 화면(렌더러)을 메모리에서 내리면
+               WebView 가 빈 채로 남았다. 렌더러가 죽으면 WebView 를 새로 만들어 게임을 다시 연다(저장은 기기에 남아 이어하기). */
+            @Override
+            public boolean onRenderProcessGone(WebView view, RenderProcessGoneDetail detail) {
+                if (view != webView) return true;
+                try { webView.destroy(); } catch (Exception ignored) {}
+                webView = null;
+                setupWebView();
+                loadGame();
+                return true;
+            }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (webView != null) { webView.onPause(); }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (webView != null) {
+            webView.onResume();
+            webView.invalidate();
+        }
     }
 
     private void loadGame() {
